@@ -3,6 +3,7 @@ package com.ruoyi.config;
 import com.ruoyi.enums.SystemConstant;
 import io.qdrant.client.QdrantClient;
 import io.qdrant.client.grpc.Collections;
+import io.qdrant.client.grpc.Points;
 import org.springframework.ai.ollama.OllamaEmbeddingModel;
 import org.springframework.ai.openai.OpenAiEmbeddingModel;
 import org.springframework.ai.vectorstore.qdrant.QdrantVectorStore;
@@ -16,8 +17,6 @@ import java.util.concurrent.ExecutionException;
 @Configuration
 public class QdrantVectorConfig {
 
-
-
     @Autowired
     private QdrantVectorStoreProperties properties;
 
@@ -25,19 +24,23 @@ public class QdrantVectorConfig {
     public QdrantVectorStore openAiQdrantVectorStore(
             QdrantClient qdrantClient, OpenAiEmbeddingModel openAiEmbeddingModel
     ) throws ExecutionException, InterruptedException {
-        if (!qdrantClient.collectionExistsAsync(SystemConstant.OPENAI_QDRANT).get()) {
-            qdrantClient.createCollectionAsync(SystemConstant.OPENAI_QDRANT,
+        String collectionName = SystemConstant.OPENAI_QDRANT;
+
+        try {
+            // 如果不存在，则创建集合
+            qdrantClient.createCollectionAsync(
+                    collectionName,
                     Collections.VectorParams.newBuilder()
-                            .setDistance(Collections.Distance.Cosine).setSize(1536).build()).get();
+                            .setDistance(Collections.Distance.Cosine)
+                            .setSize(1536)
+                            .build()
+            ).get();
+        }catch (Exception e){
+
         }
-//        return new QdrantVectorStore(
-//                qdrantClient,
-//                SystemConstant.OPENAI_GPT3_QDRANT,
-//                openAiEmbeddingModel,
-//                properties.isInitializeSchema()
-//        );
-        return QdrantVectorStore.builder(qdrantClient,openAiEmbeddingModel)
-                .collectionName(SystemConstant.OPENAI_QDRANT)
+
+        return QdrantVectorStore.builder(qdrantClient, openAiEmbeddingModel)
+                .collectionName(collectionName)
                 .initializeSchema(properties.isInitializeSchema())
                 .build();
     }
@@ -46,23 +49,10 @@ public class QdrantVectorConfig {
     public QdrantVectorStore ollamaQdrantVectorStore(
             QdrantClient qdrantClient, OllamaEmbeddingModel ollamaEmbeddingModel
     ) throws ExecutionException, InterruptedException {
-        if (!qdrantClient.collectionExistsAsync(SystemConstant.OLLAMA_QDRANT).get()) {
-            qdrantClient.createCollectionAsync(SystemConstant.OLLAMA_QDRANT,
-                    Collections.VectorParams.newBuilder()
-                            .setDistance(Collections.Distance.Cosine)
-                            .setSize(1024)
-                     .build()).get();
-        }
-//        return new QdrantVectorStore(
-//                qdrantClient,
-//                SystemConstant.OLLAMA_QWEN2_QDRANT,
-//                ollamaEmbeddingModel,
-//                properties.isInitializeSchema()
-//        );
-        return QdrantVectorStore.builder(qdrantClient,ollamaEmbeddingModel)
+
+        return QdrantVectorStore.builder(qdrantClient, ollamaEmbeddingModel)
                 .collectionName(SystemConstant.OLLAMA_QDRANT)
                 .initializeSchema(properties.isInitializeSchema())
                 .build();
     }
-
 }

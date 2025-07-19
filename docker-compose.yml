@@ -1,0 +1,59 @@
+services:
+  # Neo4j 服务
+  #docker pull 192.168.4.26/basic/neo4j@sha256:fbbd80a579b2dec24ccf8ea8bb197a7e01ad55762d25659a39bc8310225c7564
+  neo4j-flf-5.7:
+    image: harbor.norintech.com/basic/neo4j@sha256:fbbd80a579b2dec24ccf8ea8bb197a7e01ad55762d25659a39bc8310225c7564
+    container_name: neo4j-flf-5.7
+    restart: always
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - ./neo4j/import:/var/lib/neo4j/import
+      - ./neo4j/data:/var/lib/neo4j/data
+      - ./neo4j/conf:/var/lib/neo4j/conf
+      - ./neo4j/plugins:/var/lib/neo4j/plugins
+      - ./neo4j/logs:/var/lib/neo4j/logs
+    environment:
+      - NEO4J_AUTH=neo4j/ruoyiRag123456
+      - NEO4J_dbms_default__database=ruoyiRag
+      - NEO4J_PLUGINS=["apoc","graph-data-science"]
+      - NEO4J_dbms_security_procedures_unrestricted=apoc.*,gds.*
+      - NEO4J_dbms_security_procedures_allowlist=apoc.*,gds.*
+      - NEO4J_server_config_strict__validation_enabled=false
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_dbms_security_auth_enabled=false
+
+  # MongoDB 服务
+  mongodb:
+    #docker pull 192.168.4.26/publicsoft/mongo@sha256:80b1bed21e42af51ad0a3142b7c6c4673d4fc178586621cf4ea934a50d0f0967
+    image: harbor.norintech.com/publicsoft/mongo@sha256:80b1bed21e42af51ad0a3142b7c6c4673d4fc178586621cf4ea934a50d0f0967
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb/data:/data/db
+      - ./mongodb/config:/data/configdb
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=ruoyiRag123456
+    command:
+      - --bind_ip_all
+
+  # Qdrant 向量数据库服务
+  qdrant:
+    #docker pull 192.168.4.26/dify/langgenius/qdrant@sha256:d727d37a2d1f5e1a23737f5e52b97d6166cc26b9810086c7a7a751b15ccc3ded
+    image: harbor.norintech.com/dify/langgenius/qdrant@sha256:d727d37a2d1f5e1a23737f5e52b97d6166cc26b9810086c7a7a751b15ccc3ded
+    container_name: qdrant
+    restart: always
+    ports:
+      - "6333:6333"       # REST API 端口
+      - "6334:6334"       # gRPC 端口（可选）
+    volumes:
+      - ./qdrant/storage:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE_PORT=6333
+      - QDRANT__STORAGE__PATH=/qdrant/storage
+      - QDRANT__API_KEY=your-secret-api-key  # 可选：启用 API 认证
+      - QDRANT__SERVICE__GRPC_PORT=6334

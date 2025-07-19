@@ -1,3 +1,7 @@
 server:
   port: 9055
 
+spring:
+  mail:
+    username: your-username
+    password: your-password
