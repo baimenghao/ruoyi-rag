@@ -28,7 +28,15 @@ public class Neo4jService {
             reader.readLine();
 
             while ((line = reader.readLine()) != null) {
+                // 跳过空行或仅包含空白字符的行
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
                 String[] data = line.split(",");
+                // 校验列数是否正确，防止数组越界
+                if (data.length < 4) {
+                    continue;
+                }
                 // 假设CSV格式：源角色,关系类型,目标角色,描述
                 createRelationship(data[0], data[1], data[2], data[3], projectId,knowledgeId);
             }
