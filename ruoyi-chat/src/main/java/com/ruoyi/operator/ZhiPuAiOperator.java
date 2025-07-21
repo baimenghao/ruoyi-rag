@@ -445,14 +445,20 @@ public class ZhiPuAiOperator implements AiOperator {
                 String baseUrl = chatProject.getBaseUrl();
                 String apiKey = chatProject.getApiKey();
                 String embeddingModel = chatProject.getEmbeddingModel();
-                QdrantVectorStore openAiQdrantVectorStore = qdrantVectorStoreComponet.getOpenAiQdrantVectorStore(baseUrl, apiKey, embeddingModel);
+                QdrantVectorStore zhiPuAiQdrantVectorStore = qdrantVectorStoreComponet.getZhiPuAiQdrantVectorStore(baseUrl, apiKey, embeddingModel);
                 //openAiQdrantVectorStore.add(documentList);
                 //异步执行
-                this.vectorStoreAsyncService.addVectorStore(knowledgeId,openAiQdrantVectorStore, docList);
+                this.vectorStoreAsyncService.addVectorStore(knowledgeId,zhiPuAiQdrantVectorStore, docList);
 
 
+            } else {
+                //异步执行
+                this.vectorStoreAsyncService.addVectorStore(knowledgeId,null, null);
             }
 
+        } else {
+            //异步执行
+            this.vectorStoreAsyncService.addVectorStore(knowledgeId,null, null);
         }
         return true;
     }
