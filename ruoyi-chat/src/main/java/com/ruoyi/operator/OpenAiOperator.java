@@ -68,6 +68,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import com.alibaba.fastjson2.JSON;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -252,8 +253,9 @@ public class OpenAiOperator implements AiOperator {
                     msgList.add(new SystemMessage(result.getContent()));
                 });
             }
-
         }
+        // 新增日志，输出联网内容加入后的上下文
+        log.info("[SearXNG] OpenAiOperator上下文msgList: {}", JSON.toJSONString(msgList));
         // 中英文切换
         msgList.add(new SystemMessage(LanguageEnum.getMsg(queryVo.getLanguage())));
         msgList.add(new SystemMessage(chatProject.getSystemPrompt()));

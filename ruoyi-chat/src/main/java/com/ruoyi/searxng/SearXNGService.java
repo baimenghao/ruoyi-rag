@@ -1,5 +1,7 @@
 package com.ruoyi.searxng;
 
+import com.alibaba.fastjson2.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 @Service
+@Slf4j
 public class SearXNGService {
     private final RestTemplate restTemplate;
     private final String searxngHost;
@@ -53,12 +56,13 @@ public class SearXNGService {
 
         HttpEntity<?> entity = new HttpEntity<>(headers);
 
+        log.info("[SearXNG] GET 查询内容: {}", params.getQ());
         ResponseEntity<SearXNGSearchResult> response = restTemplate.exchange(
                 builder.toUriString(),
                 HttpMethod.GET,
                 entity,
                 SearXNGSearchResult.class);
-
+        log.info("[SearXNG] GET 返回结果: {}", JSON.toJSONString(response.getBody()));
         return response.getBody();
     }
 
@@ -116,8 +120,10 @@ public class SearXNGService {
      * @return 搜索结果
      */
     public SearXNGSearchResult search(String query) {
-        SearXNGSearchParams params = new SearXNGSearchParams(query);
-        return searchWithGet(params);
+        log.info("[SearXNG] search(String) 查询内容: {}", query);
+        SearXNGSearchResult result = searchWithGet(new SearXNGSearchParams(query));
+        log.info("[SearXNG] search(String) 返回结果: {}", JSON.toJSONString(result));
+        return result;
     }
 
     /**
